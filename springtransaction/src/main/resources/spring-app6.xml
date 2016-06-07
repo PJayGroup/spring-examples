@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- http://www.springframework.org/schema/ -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:tx="http://www.springframework.org/schema/tx"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.2.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+		
+	<context:component-scan base-package="org.pjaygroup.springtransaction.app6" />
+	<!-- <context:annotation-config/> -->
+	<!-- <tx:annotation-driven transaction-manager="bank_abc_txm"/> -->
+	<context:load-time-weaver/>
+	<tx:annotation-driven transaction-manager="bank_abc_txm" proxy-target-class="true" mode="aspectj"/>
+
+	<!-- <bean id="bank_abc_ds" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close"> -->
+	<bean id="bank_abc_ds" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+	    <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+	    <property name="url" value="jdbc:mysql://localhost:3306/bank_abc" />
+	    <property name="username" value="root" />
+	    <property name="password" value="" />
+	    <!-- <property name="initialSize" value="2"/> -->
+	</bean>
+	
+	<bean id="bank_xyz_ds" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+	    <property name="driverClassName" value="org.postgresql.Driver" />
+	    <property name="url" value="jdbc:postgresql://localhost:5432/bank_xyz" />
+	    <property name="username" value="postgres" />
+	    <property name="password" value="postgres" />
+	</bean>
+	
+	<bean id="bank_abc_txm" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	    <property name="dataSource" ref="bank_abc_ds"/>
+	    <qualifier value="bank_abc_txm_qual"/>
+	</bean>
+	
+	<bean id="bank_xyz_txm" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	    <property name="dataSource" ref="bank_xyz_ds"/>
+	    <qualifier value="bank_xyz_txm_qual"/>
+	</bean>
+
+</beans>
