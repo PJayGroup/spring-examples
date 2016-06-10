@@ -65,7 +65,7 @@ public class RunApp5 {
 	 * -javaagent:org.springframework.instrument.jar
 	 * 
 	 * Example for my local while running through eclipse use VM args as
-	 * "-javaagent:C:/Users/krishna/.m2/repository/org/springframework/spring-instrument/4.2.6.RELEASE/spring-instrument-4.2.6.RELEASE.jar"
+	 * "-javaagent:C:/Users/vijayk/.m2/repository/org/springframework/spring-instrument/4.2.6.RELEASE/spring-instrument-4.2.6.RELEASE.jar"
 	 * 
 	 * http://www.springbyexample.org/examples/aspectj-ltw.html
 	 */

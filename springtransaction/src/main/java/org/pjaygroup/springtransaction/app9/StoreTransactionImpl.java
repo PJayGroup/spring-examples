@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.pjaygroup.springtransaction.app5;
+package org.pjaygroup.springtransaction.app9;
 
 import java.util.List;
 import java.util.Map;
@@ -56,26 +56,10 @@ public class StoreTransactionImpl implements StoreTransaction{
     	System.out.println("******************************************");
     }
     
-    /**
-     * 
-     * http://docs.spring.io/autorepo/docs/spring/4.2.x/spring-framework-reference/html/transaction.html
-     * http://stackoverflow.com/questions/3037006/starting-new-transaction-in-spring-bean
-     * 
-	 * Spring recommends that you only annotate concrete classes (and methods of
-	 * concrete classes) with the @Transactional annotation, as opposed to
-	 * annotating interfaces. You certainly can place the @Transactional
-	 * annotation on an interface (or an interface method), but this works only
-	 * as you would expect it to if you are using interface-based proxies. The
-	 * fact that Java annotations are not inherited from interfaces means that
-	 * if you are using class-based proxies ( proxy-target-class="true") or the
-	 * weaving-based aspect ( mode="aspectj"), then the transaction settings are
-	 * not recognized by the proxying and weaving infrastructure, and the object
-	 * will not be wrapped in a transactional proxy, which would be decidedly
-	 * bad.
-	 */
-    
     @Override
-    @Transactional(value="store_akart_txm_qual",propagation=Propagation.REQUIRED,isolation=Isolation.READ_COMMITTED,timeout=5)
+    @Transactional(propagation=Propagation.REQUIRED,isolation=Isolation.READ_COMMITTED,timeout=5)
+    //@Transactional(value="jtaTransactionManager",propagation=Propagation.REQUIRED,isolation=Isolation.READ_COMMITTED,timeout=5)
+    //As "jtaTransactionManager" is the default transaction manager in "tx:annotation-driven" tag, no need to mention in above annotation, no harm mentioning also
     public void addCustomerData() throws Exception{
 		try{
 			System.out.println(" :: TransactionSynchronizationManager.isActualTransactionActive() :: " + TransactionSynchronizationManager.isActualTransactionActive());
@@ -88,12 +72,10 @@ public class StoreTransactionImpl implements StoreTransaction{
 			throw e;
 		}
 	}
-
+    
 	@Override
-	@Transactional(value="store_akart_txm_qual",propagation=Propagation.REQUIRED,isolation=Isolation.READ_COMMITTED,timeout=5)
-	//Above annotation works fine but trying to directly on main method will detach them as nested transactions and will commit them individually
-	//Example "buyFromStore_akart()" method goes with one transaction where as other with new transaction, when other fails, there is no chance to 
-	//revert "buyFromStore_akart()" method transaction. As it is spinning its own transaction boundary and commits on its method success 
+    @Transactional(propagation=Propagation.REQUIRED,isolation=Isolation.READ_COMMITTED,timeout=5)
+    //@Transactional(value="jtaTransactionManager",propagation=Propagation.REQUIRED,isolation=Isolation.READ_COMMITTED,timeout=5)
 	public void purchaseProduct(Map<String, Integer> products) throws Exception{
 		if(null != products){
 			try {
@@ -104,9 +86,7 @@ public class StoreTransactionImpl implements StoreTransaction{
 			}
 		}
 	}
-
-	//@Transactional(value="store_akart_txm_qual",propagation=Propagation.REQUIRED,isolation=Isolation.READ_COMMITTED,timeout=5)
-	//This annotation detaches it from nested transaction boundary and will commit within its method boundary. So above is wrong to use in nested trasaction
+	
 	private Map<String, Integer> buyFromStore_akart(Map<String, Integer> products) throws Exception{
 		System.out.println(" :: TransactionSynchronizationManager.isActualTransactionActive() :: " + TransactionSynchronizationManager.isActualTransactionActive());
 		JdbcTemplate jdbcTemplate_akart = new JdbcTemplate(getStore_akart_ds());
@@ -126,37 +106,7 @@ public class StoreTransactionImpl implements StoreTransaction{
 		//jdbcTemplate_akart.update("INSERT INTO products (id, product_name, quantity) VALUES (3, 'Xperia Z5', 99999999999)");
 		return products;
 	}
-
-	/**
-	 * 
-	 * http://docs.spring.io/autorepo/docs/spring/4.2.x/spring-framework-
-	 * reference/html/transaction.html
-	 * http://stackoverflow.com/questions/13883966/is-exception-handling-
-	 * required-in-spring-transaction
-	 * 
-	 * Transaction timeout defaults to the default timeout of the underlying
-	 * transaction system, or none if timeouts are not supported. Any
-	 * RuntimeException triggers rollback, and any checked Exception does not
-	 * 
-	 * In its default configuration, the Spring Framework's transaction
-	 * infrastructure code only marks a transaction for rollback in the case of
-	 * runtime, unchecked exceptions; that is, when the thrown exception is an
-	 * instance or subclass of RuntimeException. (Errors will also - by default
-	 * - result in a rollback). Checked exceptions that are thrown from a
-	 * transactional method do not result in rollback in the default
-	 * configuration
-	 * 
-	 * You set rollbackFor = {Throwable.class} or some kind of exceptions you
-	 * like, now Spring will rollback for any Exception / Error. By default,
-	 * whether we like it or not, Spring will rollback only for
-	 * RuintimeException, and commit otherwise
-	 * 
-	 * https://docs.oracle.com/cd/E19683-01/806-7930/6jgp65ikq/index.html
-	 * http://stackoverflow.com/questions/5509082/eclipse-enable-assertions
-	 * https://www.catalysts.cc/en/wissenswertes/spring-transactional-rollback-on-checked-exceptions/
-	 */
 	
-	@Transactional(value="store_xkart_txm_qual",propagation=Propagation.REQUIRES_NEW,isolation=Isolation.READ_COMMITTED,timeout=5)
 	private void buyRemainingFromStore_xkart(Map<String, Integer> products) throws Exception{
 		System.out.println(" :: TransactionSynchronizationManager.isActualTransactionActive() :: " + TransactionSynchronizationManager.isActualTransactionActive());
 		JdbcTemplate jdbcTemplate_xkart = new JdbcTemplate(getStore_xkart_ds());
@@ -165,10 +115,8 @@ public class StoreTransactionImpl implements StoreTransaction{
 			productName = (null!=map.get(PRODUCT_NAME)?((String)map.get(PRODUCT_NAME)).trim():"");
 			if(products.get(productName) > (Integer)map.get(QUANTITY)){
 				System.out.println("Cannot Buy from xkart Store as we don't have the quantity you are looking for :: " + products.get(productName) + " :: " + productName);
-				//throw new Exception("Cannot Buy from xkart Store as we don't have the quantity you are looking for :: " + products.get(productName) + " :: " + productName);
-				//throw new SQLException("Cannot Buy from xkart Store as we don't have the quantity you are looking for :: " + products.get(productName) + " :: " + productName);
 				//assert false:("Cannot Buy from xkart Store as we don't have the quantity you are looking for :: " + products.get(productName) + " :: " + productName);
-				// Putting some wrong statement for throwing "AssertionError" which is type Error
+				//Putting some wrong statement for throwing "AssertionError" which is type Error
 				//assert 5>=6:("Cannot Buy from xkart Store as we don't have the quantity you are looking for :: " + products.get(productName) + " :: " + productName);
 				//Example VM args in my local for eclipse: "-javaagent:C:/Users/vijayk/.m2/repository/org/springframework/spring-instrument/4.2.6.RELEASE/spring-instrument-4.2.6.RELEASE.jar -ea"
 				//Rollback is happening for Error thrown - java.lang.AssertionError

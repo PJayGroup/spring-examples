@@ -1,13 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 3.5.2.2
+-- version 4.1.12
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: May 31, 2016 at 04:52 PM
--- Server version: 5.5.27
--- PHP Version: 5.4.7
+-- Generation Time: Jun 10, 2016 at 11:26 AM
+-- Server version: 5.6.16
+-- PHP Version: 5.5.11
 
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
 
@@ -27,11 +27,11 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE IF NOT EXISTS `account` (
-  `acc_number` int(11) NOT NULL,
+  `acc_number` int(11) NOT NULL AUTO_INCREMENT,
   `customer_name` varchar(120) DEFAULT NULL,
   `acc_balance` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`acc_number`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=101 ;
 
 --
 -- Dumping data for table `account`
