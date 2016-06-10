@@ -17,6 +17,4 @@ ALTER TABLE account
 
   
 
-INSERT INTO account(
-            acc_number, customer_name, acc_balance)
-   VALUES (101, 'Kumar', 900);
+INSERT INTO account(acc_number, customer_name, acc_balance) VALUES (101, 'Kumar', 900);

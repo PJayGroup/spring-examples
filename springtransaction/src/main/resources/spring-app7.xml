@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- http://www.springframework.org/schema/ -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:tx="http://www.springframework.org/schema/tx"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.2.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+		
+	<context:component-scan base-package="org.pjaygroup.springtransaction.app7" />
+	<!-- <context:annotation-config/> -->
+	<!-- <tx:annotation-driven transaction-manager="store_akart_txm"/> -->
+	<context:load-time-weaver/>
+	<tx:annotation-driven transaction-manager="store_akart_txm" proxy-target-class="true" mode="aspectj"/>
+	
+	<bean id="store_akart_ds" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+	    <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+	    <property name="url" value="jdbc:mysql://localhost:3306/store_akart" />
+	    <property name="username" value="root" />
+	    <property name="password" value="" />
+	</bean>
+	
+	<bean id="store_xkart_ds" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+	    <property name="driverClassName" value="org.postgresql.Driver" />
+	    <property name="url" value="jdbc:postgresql://localhost:5432/store_xkart" />
+	    <property name="username" value="postgres" />
+	    <property name="password" value="postgres" />
+	</bean>
+	
+	<bean id="store_akart_txm" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	    <property name="dataSource" ref="store_akart_ds"/>
+	    <qualifier value="store_akart_txm_qual"/>
+	</bean>
+	
+	<bean id="store_xkart_txm" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	    <property name="dataSource" ref="store_xkart_ds"/>
+	    <qualifier value="store_xkart_txm_qual"/>
+	</bean>
+	
+	<!-- Try using latest http://www.springframework.org/schema/util -->
+	<bean id="products" class="java.util.HashMap" scope="prototype" >
+	    <constructor-arg>
+	        <map key-type="java.lang.String" value-type="java.lang.Integer">
+	            <entry key="iPhone 7s" value="11" />
+	            <entry key="Samsung Galaxy S7 Edge" value="5" />
+	        </map>
+	    </constructor-arg>
+	</bean>
+
+</beans>

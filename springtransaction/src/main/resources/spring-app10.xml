@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- http://www.springframework.org/schema/ -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:tx="http://www.springframework.org/schema/tx"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.2.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+		
+	<context:component-scan base-package="org.pjaygroup.springtransaction.app10" />
+	<!-- <context:annotation-config/> -->
+	<!-- <tx:annotation-driven transaction-manager="bank_abc_txm"/> -->
+	<context:load-time-weaver/>
+	<tx:annotation-driven transaction-manager="jtaTransactionManager" proxy-target-class="true" mode="aspectj"/>
+	
+	<bean id="bank_abc_ds" class="com.atomikos.jdbc.AtomikosDataSourceBean" init-method="init" destroy-method="close">
+		<property name="uniqueResourceName" value="xa_mysql"/>
+		<property name="xaDataSourceClassName" value="com.mysql.jdbc.jdbc2.optional.MysqlXADataSource"/>
+		<property name="xaProperties">
+			<props>
+				<prop key="user">root</prop>
+				<prop key="password"></prop>
+				<prop key="url">jdbc:mysql://localhost:3306/bank_abc</prop>
+			</props>
+		</property>
+		<property name="poolSize" value="2"/>
+	</bean>
+	
+	<bean id="bank_xyz_ds" class="com.atomikos.jdbc.AtomikosDataSourceBean" init-method="init" destroy-method="close">
+		<property name="uniqueResourceName" value="xa_postgres"/>
+		<property name="xaDataSourceClassName" value="org.postgresql.xa.PGXADataSource"/>
+		<property name="xaProperties">
+			<props>
+				<prop key="user">postgres</prop>
+				<prop key="password">postgres</prop>
+				<prop key="serverName">localhost</prop>
+				<prop key="databaseName">bank_xyz</prop>
+				<prop key="portNumber">5432</prop>
+				<!-- Not having below property in "org.postgresql.xa.PGXADataSource" -->
+				<!-- <prop key="url">jdbc:postgresql://localhost:5432/store_xkart</prop> -->
+			</props>
+		</property>
+		<property name="poolSize" value="2"/>
+	</bean>
+	
+	<!-- https://www.atomikos.com/Documentation/SpringIntegration -->
+	<!-- http://stackoverflow.com/questions/10212274/two-phase-commit-2pc-configuration-with-atomikos -->
+	<bean id="atomikosTransactionManager" class="com.atomikos.icatch.jta.UserTransactionManager" init-method="init" destroy-method="close">
+		<property name="forceShutdown" value="false"/>
+	</bean>
+	
+	<!-- UserTransaction implementation J2EE applications  -->
+	<!-- <bean id="atomikosUserTransaction" class="com.atomikos.icatch.jta.J2eeUserTransaction"> -->
+	<!-- UserTransaction implementation for J2SE transactions -->
+	<bean id="atomikosUserTransaction" class="com.atomikos.icatch.jta.UserTransactionImp">
+		<!-- transactionTimeout value is in seconds so giving 15 for testing -->
+		<property name="transactionTimeout" value="15" />
+	</bean>
+	
+	<bean id="jtaTransactionManager" class="org.springframework.transaction.jta.JtaTransactionManager">
+		<property name="transactionManager" ref="atomikosTransactionManager" />
+		<property name="userTransaction" ref="atomikosUserTransaction" />
+		<property name="allowCustomIsolationLevels" value="true"/>
+	</bean>
+	
+</beans>

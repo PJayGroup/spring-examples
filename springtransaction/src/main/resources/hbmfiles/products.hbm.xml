@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+	<class name="org.pjaygroup.springtransaction.model.Products" table="products">
+		<id name="id" column="id">
+			<generator class="native"/>
+		</id>
+		<property name="product_name" column="product_name"></property>
+		<property name="quantity" column="quantity"></property>
+	</class>
+</hibernate-mapping>

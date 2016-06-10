@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.pjaygroup.springtransaction.app6;
+package org.pjaygroup.springtransaction.app8;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -9,14 +9,14 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * @author Vijay Konduru
  *
  */
-public class RunApp6 {
+public class RunApp8 {
 
 	/**
 	 * @param args
 	 */
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
-        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("spring-app6.xml");
+        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("spring-app8.xml");
         BankTransaction bankTransaction = ctx.getBean("bank_bean", BankTransaction.class);
         bankTransaction.tryPrint();
         System.out.println("\n");

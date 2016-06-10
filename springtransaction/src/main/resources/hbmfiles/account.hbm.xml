@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<!-- http://hibernate.org/dtd/ -->
+<!-- <hibernate-mapping> -->
+<hibernate-mapping package="org.pjaygroup.springtransaction.model">
+	<!-- <class name="org.pjaygroup.springtransaction.model.Account" table="account"> -->
+	<class name="Account" table="account">
+		<id name="acc_number" column="acc_number">
+			<generator class="native"></generator>
+		</id>
+		<!-- https://docs.jboss.org/hibernate/stable/core.old/reference/en/html/mapping-types.html -->
+		<!-- <property name="customer_name" column="customer_name" type="string"></property> -->
+		<property name="customer_name" column="customer_name"></property>
+		<!-- <property name="acc_balance" column="acc_balance" type="integer"/> -->
+		<property name="acc_balance" column="acc_balance"></property>
+	</class>
+</hibernate-mapping>
