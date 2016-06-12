@@ -64,10 +64,10 @@ public class StoreTransactionImpl implements StoreTransaction{
 		try{
 			System.out.println(" :: TransactionSynchronizationManager.isActualTransactionActive() :: " + TransactionSynchronizationManager.isActualTransactionActive());
 			JdbcTemplate jdbcTemplate = new JdbcTemplate(getStore_akart_ds());
-			jdbcTemplate.update("INSERT INTO customer (id, name, number) VALUES (358,'Vijay',999999)");
-			//jdbcTemplate.update("INSERT INTO customer (id, name, number) VALUES (525,'Vijay',99999999999)");//This fails to insert due size of data more than column size
-			jdbcTemplate.update("INSERT INTO address (id, customer_id, address) VALUES (143,358,'FOSTER CITY, SFO, 94404')");
-			jdbcTemplate.update("INSERT INTO customer (id, name, number) VALUES (525,'Vijay',99999999999)");
+			jdbcTemplate.update("INSERT INTO customer (id, name, number) VALUES (141,'Vijay',999999)");
+			//jdbcTemplate.update("INSERT INTO customer (id, name, number) VALUES (142,'Vijay',99999999999)");//This fails to insert due size of data more than column size
+			jdbcTemplate.update("INSERT INTO address (id, customer_id, address) VALUES (143,141,'FOSTER CITY, SFO, 94404')");
+			jdbcTemplate.update("INSERT INTO customer (id, name, number) VALUES (142,'Vijay',99999999999)");
 		} catch (Exception e) {
 			throw e;
 		}
