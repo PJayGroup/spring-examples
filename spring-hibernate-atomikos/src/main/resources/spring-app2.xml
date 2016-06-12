@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- http://www.springframework.org/schema/ -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:tx="http://www.springframework.org/schema/tx"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.2.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+		
+	<context:component-scan base-package="org.pjaygroup.springtransaction.app2" />
+	<!-- <context:annotation-config/> -->
+	<!-- <tx:annotation-driven transaction-manager="bank_abc_txm"/> -->
+	<context:load-time-weaver/>
+	<tx:annotation-driven transaction-manager="jtaTransactionManager" proxy-target-class="true" mode="aspectj"/>
+	
+	<bean id="bank_abc_ds" class="com.atomikos.jdbc.AtomikosDataSourceBean" init-method="init" destroy-method="close">
+		<property name="uniqueResourceName" value="xa_mysql"/>
+		<property name="xaDataSourceClassName" value="com.mysql.jdbc.jdbc2.optional.MysqlXADataSource"/>
+		<property name="xaProperties">
+			<props>
+				<prop key="user">root</prop>
+				<prop key="password"></prop>
+				<prop key="url">jdbc:mysql://localhost:3306/bank_abc</prop>
+			</props>
+		</property>
+		<property name="poolSize" value="2"/>
+	</bean>
+	
+	<bean id="bank_xyz_ds" class="com.atomikos.jdbc.AtomikosDataSourceBean" init-method="init" destroy-method="close">
+		<property name="uniqueResourceName" value="xa_postgres"/>
+		<property name="xaDataSourceClassName" value="org.postgresql.xa.PGXADataSource"/>
+		<property name="xaProperties">
+			<props>
+				<prop key="user">postgres</prop>
+				<prop key="password">postgres</prop>
+				<prop key="serverName">localhost</prop>
+				<prop key="databaseName">bank_xyz</prop>
+				<prop key="portNumber">5432</prop>
+				<!-- Not having below property in "org.postgresql.xa.PGXADataSource" -->
+				<!-- <prop key="url">jdbc:postgresql://localhost:5432/store_xkart</prop> -->
+			</props>
+		</property>
+		<property name="poolSize" value="2"/>
+	</bean>
+	
+	
+	<bean id="bank_abc_sessionfactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="bank_abc_ds"></property>
+		<property name="mappingResources">
+			<list>
+				<value>hbmfiles/account.hbm.xml</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.current_session_context_class">jta</prop>
+				<prop key="javax.persistence.transactionType">jta</prop>
+				<prop key="hibernate.transaction.jta.platform">com.atomikos.icatch.jta.hibernate4.AtomikosPlatform</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.search.autoregister_listeners">false</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="bank_xyz_sessionfactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="bank_xyz_ds"></property>
+		<!-- Can be used if we are working on annotation driven POJO or business objects -->
+		<!-- <property name="packagesToScan" value="{org.pjaygroup.springtransaction.model}"/> -->
+		<!-- <property name="annotatedClasses"><list><value>org.pjaygroup.springtransaction.model.Address</value></list></property> -->
+		<property name="mappingResources">
+			<list>
+				<value>hbmfiles/account.hbm.xml</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+			<!-- http://vkuzel.blogspot.in/2016/03/spring-boot-jpa-hibernate-atomikos.html -->
+				<!-- <prop key="hibernate.dialect">org.hibernate.dialect.PostgresPlusDialect</prop> -->
+				<prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQL9Dialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<!-- If hibernate_sequence table is not present then there can be errors hence adding below property to get the table created automatically. 
+				Not required for MYSQL as Identity is supported, hence auto increment of primary key happens -->
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<!-- <prop key="hibernate.hbm2ddl.auto">update</prop> -->
+				<prop key="hibernate.current_session_context_class">jta</prop>
+				<prop key="javax.persistence.transactionType">jta</prop>
+				<prop key="hibernate.transaction.jta.platform">com.atomikos.icatch.jta.hibernate4.AtomikosPlatform</prop>
+				<prop key="hibernate.search.autoregister_listeners">false</prop>
+				<!-- http://vkuzel.blogspot.in/2016/03/spring-boot-jpa-hibernate-atomikos.html -->
+				<prop key="hibernate.temp.use_jdbc_metadata_defaults">false</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<!-- https://www.atomikos.com/Documentation/SpringIntegration -->
+	<!-- http://stackoverflow.com/questions/10212274/two-phase-commit-2pc-configuration-with-atomikos -->
+	<bean id="atomikosTransactionManager" class="com.atomikos.icatch.jta.UserTransactionManager" init-method="init" destroy-method="close">
+		<property name="forceShutdown" value="false"/>
+	</bean>
+	
+	<!-- UserTransaction implementation J2EE applications  -->
+	<!-- <bean id="atomikosUserTransaction" class="com.atomikos.icatch.jta.J2eeUserTransaction"> -->
+	<!-- UserTransaction implementation for J2SE transactions -->
+	<bean id="atomikosUserTransaction" class="com.atomikos.icatch.jta.UserTransactionImp">
+		<!-- transactionTimeout value is in seconds so giving 15 for testing -->
+		<property name="transactionTimeout" value="15" />
+	</bean>
+	
+	<bean id="jtaTransactionManager" class="org.springframework.transaction.jta.JtaTransactionManager">
+		<property name="transactionManager" ref="atomikosTransactionManager" />
+		<property name="userTransaction" ref="atomikosUserTransaction" />
+		<property name="allowCustomIsolationLevels" value="true"/>
+	</bean>
+	
+</beans>
